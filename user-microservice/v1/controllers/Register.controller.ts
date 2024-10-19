@@ -4,7 +4,7 @@ import { type NextFunction, type Request, type Response } from "express";
 import { ResponseMessage } from "../util/Response";
 import { z, ZodError } from "zod";
 import bcrypt from "bcrypt";
-import Service from "../service/service.ts";
+import { publishUserEvent } from "../publisher/publisher";
 import { registerSchema } from "../../schemas";
 
 const prisma = new PrismaClient();
@@ -12,6 +12,7 @@ const prisma = new PrismaClient();
 type registerSchemaType = z.infer<typeof registerSchema>;
 
 export const registerController = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  console.log("Register controller called");
   try {
     const { name, email, password } = await registerSchema.parseAsync(req.body);
 
@@ -30,6 +31,8 @@ export const registerController = async (req: Request, res: Response, next: Next
       name: user.name,
       email: user.email,
     };
+
+    publishUserEvent(sentUserData, "USER_REGISTERED");
 
     res.json(ResponseMessage(200, sentUserData));
   } catch (error) {

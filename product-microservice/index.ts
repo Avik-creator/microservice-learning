@@ -2,7 +2,7 @@ import cors from "cors";
 import express, { type Express, type NextFunction, type Request, type Response } from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-
+import { consumeProductEvents } from "./consumers/consumer";
 import { ProductMiddleware } from "./middlewares/Product.middleware";
 import ProductRoute from "./routes/Product.route";
 import { customMessage } from "./util/util";
@@ -19,7 +19,7 @@ const limiter = rateLimit({
 });
 
 const corsOption = {
-  origin: [String(process.env.FRONTEND_URL)],
+  origin: String(process.env.FRONTEND_URL) || "*",
 };
 
 const app: Express = express();
@@ -52,6 +52,8 @@ app.use((_req: Request, _res: Response, next: NextFunction) => {
 app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
   next(customMessage(err.message, null));
 });
+
+consumeProductEvents("ORDER_PLACED");
 
 // Server Configs
 const PORT: number = Number(process.env.PORT) || 6000;

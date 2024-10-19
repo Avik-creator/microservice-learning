@@ -2,7 +2,7 @@ import cors from "cors";
 import express, { type Express, type NextFunction, type Request, type Response } from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-
+import amqp from "amqplib";
 import AuthRouter from "./v1/routes/Auth.route";
 import UserRouter from "./v1/routes/User.route";
 
@@ -18,7 +18,7 @@ const limiter = rateLimit({
 });
 
 const corsOption = {
-  origin: [String(process.env.FRONTEND_URL)],
+  origin: String(process.env.FRONTEND_URL) || "*",
 };
 
 const app: Express = express();

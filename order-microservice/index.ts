@@ -5,6 +5,7 @@ import helmet from "helmet";
 
 import OrderRoute from "./v1/routes/Order.route";
 import { customResponse } from "./util/CustomResponse.util";
+import { orderConsumerEvent } from "./v1/consumer/consumer";
 
 // RateLimitter
 const limiter = rateLimit({
@@ -19,7 +20,7 @@ const limiter = rateLimit({
 });
 
 const corsOption = {
-  origin: [String(process.env.FRONTEND_URL)],
+  origin: String(process.env.FRONTEND_URL) || "*",
 };
 
 const app: Express = express();
@@ -56,8 +57,11 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
+orderConsumerEvent("USER_REGISTERED"); // Reason -> may need to be aware of new users or updated user information for several reasons like sending emails, etc.
+orderConsumerEvent("USER_PROFILE_UPDATED"); // Reason -> may need to be aware of new users or updated user information for several reasons like sending emails, etc.
+
 // Server Configs
 const PORT: number = Number(process.env.PORT) || 4000;
 app.listen(PORT, () => {
-  console.log(`🚀ORDER MICROSERVICE IS RUNNING ON ${PORT}`);
+  console.log(`ORDER MICROSERVICE IS RUNNING ON ${PORT}`);
 });
