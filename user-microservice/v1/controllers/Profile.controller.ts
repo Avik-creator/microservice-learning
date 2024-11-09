@@ -1,10 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import { type NextFunction, type Request, type Response } from "express";
 import type { JwtPayload } from "jsonwebtoken";
-import { ResponseMessage } from "../util/Response";
 import { ZodError } from "zod";
 import { publishUserEvent } from "../publisher/publisher";
-
+import Service from "../service/service";
+import { ResponseMessage } from "../util/Response";
 declare module "express-serve-static-core" {
   interface Request {
     user?: JwtPayload;
@@ -123,3 +123,25 @@ export const getAllUsersController = async (req: Request, res: Response, next: N
     return next(ResponseMessage(500, "Internal server error"));
   }
 };
+
+export const validateJWTToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const {token} = req.body;
+  if (!token) {
+    return next(ResponseMessage(400, "Token is required"));
+  }
+
+  const serializedToken = token.split(" ")[1];
+  const decodedUser = Service.decode(serializedToken);
+  const userId = decodedUser.id;
+  if(!userId){
+    return next(ResponseMessage(400, "Invalid token"));
+  }
+
+  const user = await prisma.user.findUnique({where: {id: userId}});
+  if(!user){
+    return next(ResponseMessage(400, "Invalid token"));
+  }
+  Service.verify(token, userId)
+  res.status(200).json(ResponseMessage(200, {token: token, user: user}));
+
+}

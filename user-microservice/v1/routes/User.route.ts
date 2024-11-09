@@ -1,10 +1,11 @@
 import express, { type Router } from "express";
 import {
   ProfileController,
+  getAllUsersController,
   getMyProfileController,
   getUserByIdController,
-  getAllUsersController,
   updateProfileController,
+  validateJWTToken
 } from "../controllers/Profile.controller";
 import { AuthMiddleware } from "../middlewares/AuthMiddleware";
 
@@ -15,4 +16,5 @@ router.get("/get-profile", AuthMiddleware, getMyProfileController);
 router.post("/update-profile", AuthMiddleware, updateProfileController);
 router.get("/all-users", getAllUsersController);
 router.get("/get-profile/:userId", getUserByIdController);
+router.post("/validate-token", validateJWTToken);
 export default router;
