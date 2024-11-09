@@ -39,7 +39,16 @@ const UserService = {
     } catch (error) {
       console.log(error);
     }
+  },
+  async login(data: any) {
+    try {
+      const response = await axios.post(`http://localhost:3000/api/users/login`, data);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
   }
+
 }
 
 export default UserService;

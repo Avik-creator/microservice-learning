@@ -9,3 +9,4 @@ const withAuth = (resolver) => async (parent, args, context, info) => {
   throw new Error("Not authenticated");
 }
 }
+export default withAuth;
