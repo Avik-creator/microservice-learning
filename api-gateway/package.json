@@ -1,0 +1,20 @@
+{
+  "name": "api-gateway",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "apollo-server": "^3.13.0",
+    "apollo-server-cache-redis": "^3.3.1",
+    "apollo-server-express": "^3.13.0",
+    "axios": "^1.7.7",
+    "graphql": "^16.9.0",
+    "ioredis": "^5.4.1",
+    "redis": "^4.7.0"
+  }
+}
