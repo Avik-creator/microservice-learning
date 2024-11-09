@@ -2,7 +2,8 @@ import cors from "cors";
 import express, { type Express, type NextFunction, type Request, type Response } from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import amqp from "amqplib";
+import client from "prom-client";
+import { httpDurationMiddleware } from "./v1/metrics/activeRequests";
 import AuthRouter from "./v1/routes/Auth.route";
 import UserRouter from "./v1/routes/User.route";
 
@@ -22,12 +23,14 @@ const corsOption = {
 };
 
 const app: Express = express();
+client.collectDefaultMetrics({ register: client.register });
 
 app.use(helmet());
 app.set("trust proxy", 1);
 app.use(limiter);
 app.use(cors(corsOption));
 app.use(express.json());
+app.use(httpDurationMiddleware)
 app.use(express.urlencoded({ extended: false }));
 
 app.all("/", (req: Request, res: Response, next: NextFunction) => {
@@ -40,7 +43,11 @@ const apiVersion = "v1";
 
 app.use(`/api/${apiVersion}/auth`, AuthRouter);
 app.use(`/api/${apiVersion}/user`, UserRouter);
-
+app.get("/metrics", async (req, res) => {
+const metrics = await client.register.metrics();
+  res.set("Content-Type", client.register.contentType);
+  res.end(metrics);
+});
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).json({
     message: "Resource not found",
